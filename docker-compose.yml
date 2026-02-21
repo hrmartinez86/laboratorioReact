@@ -31,9 +31,12 @@ services:
       DB_PASSWORD: password
       DB_NAME: lab_database
       DB_PORT: 3306
-      NODE_ENV: production
+      NODE_ENV: development
     ports:
       - "3000:3000"
+    volumes:
+      - ./back/src:/app/src
+      - ./back/package*.json:/app/package*.json
     depends_on:
       mysql:
         condition: service_healthy
