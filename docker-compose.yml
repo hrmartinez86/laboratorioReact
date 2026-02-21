@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: labReact-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: lab_database
+      MYSQL_USER: labuser
+      MYSQL_PASSWORD: labpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - labReact-network
+
+  back:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    container_name: labReact-back
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: password
+      DB_NAME: lab_database
+      DB_PORT: 3306
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - labReact-network
+    restart: unless-stopped
+
+  front:
+    build:
+      context: ./frontLab
+      dockerfile: Dockerfile
+    container_name: labReact-front
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3000
+    depends_on:
+      - back
+    networks:
+      - labReact-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  labReact-network:
+    driver: bridge
