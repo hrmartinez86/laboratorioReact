@@ -50,6 +50,10 @@ services:
       - "5173:5173"
     environment:
       VITE_API_URL: http://localhost:3000
+    volumes:
+      - ./frontLab/src:/app/src
+      - ./frontLab/index.html:/app/index.html
+      - ./frontLab/vite.config.ts:/app/vite.config.ts
     depends_on:
       - back
     networks:
